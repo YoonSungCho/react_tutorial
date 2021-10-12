@@ -1,17 +1,25 @@
-// { Component } 헷갈림
-import React, { Component } from 'react';
+import logo from './logo.svg';
+import './App.css';
 
-// ECMAScript 6 문법좀 공부해야 함 class 가 있다니...
-
-class App extends Component {
-    render() {
-        return (
-            <div>
-                <h1>Hello, React</h1>
-            </div>
-        )
-    }
+function App() {
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
+  );
 }
-// App class 를 module 로 export 선언
-// Javascript module 표준 방식
+
 export default App;
