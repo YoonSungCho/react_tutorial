@@ -2,9 +2,10 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import logo from '../../logo.png'
 
 class Login extends React.Component {
-    constructor(props) {
+    constructor(props: object) {
         super(props);
         this.state = {
             email: undefined,
@@ -13,9 +14,9 @@ class Login extends React.Component {
         this.handleLogin = this.handleLogin.bind(this);
     }
 
-    handleLogin(e) {
+    handleLogin(e: any): void {
         e.preventDefault();
-        const data = new FormData(e.currentTarget);
+        const data: any = new FormData(e.currentTarget);
         this.setState(
             {
                 email: data.get('email'),
@@ -33,7 +34,10 @@ class Login extends React.Component {
                 alignItems: 'center',
             }}
             >
-            <h3>Sign In</h3>
+            <h3>Welcome</h3>
+            <header className="App-header">
+                <img src={logo} className="App-logo" alt="logo" />
+            </header>
             <Box component="form" onSubmit={this.handleLogin}>    
                 <div>
                     <TextField 
