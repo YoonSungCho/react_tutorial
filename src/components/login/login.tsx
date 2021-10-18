@@ -1,8 +1,8 @@
 import React from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import { Box, TextField, Button, Divider } from '@mui/material';
 import logo from '../../logo.png'
+import { GoogleLogin, GoogleLogout } from 'react-google-login';
+import HomeAppBar from 'components/home/homeAppBar';
 
 class Login extends React.Component {
     constructor(props: object) {
@@ -12,6 +12,7 @@ class Login extends React.Component {
             password: undefined
         };
         this.handleLogin = this.handleLogin.bind(this);
+        this.googleResponse = this.googleResponse.bind(this);
     }
 
     handleLogin(e: any): void {
@@ -25,45 +26,68 @@ class Login extends React.Component {
             () => alert(JSON.stringify(this.state))
         );
     }
+
+    googleResponse(response: any) {
+        if(response.error) {
+            alert(response.type);
+        } else {
+            console.log(response);
+        }
+    }
+
     render() {
         return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-            }}
-            >
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
             <h3>Welcome</h3>
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-            </header>
-            <Box component="form" onSubmit={this.handleLogin}>    
-                <div>
-                    <TextField 
-                        id="email"
-                        name="email"
-                        label="Email" 
-                        variant="standard"
-                        autoComplete="email"
-                        required
-                        autoFocus
+            <img src={logo} className="App-logo" alt="logo" />
+            <Box
+                sx={{
+                    mt: 5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: 'fit-content'
+                }}
+                >
+                <Box component="form" onSubmit={this.handleLogin}>
+                    <div>
+                        <GoogleLogin 
+                            clientId="812808506191-8engeelglq514fno67eltm73min06b4a.apps.googleusercontent.com"
+                            buttonText="Login With Google"
+                            onSuccess={this.googleResponse}
+                            onFailure={this.googleResponse}
+                            cookiePolicy="single_host_origin"
+                            redirectUri="/home" 
+                        />
+                    </div>
+                    <Divider sx={{mt:3, mb: 1}} flexItem>
+                        or
+                    </Divider>    
+                    <div>
+                        <TextField 
+                            id="email"
+                            name="email"
+                            label="Email" 
+                            variant="standard"
+                            autoComplete="email"
+                            required
+                            autoFocus
 
-                    />
-                </div>
-                <div>
-                    <TextField 
-                        id="password"
-                        name="password" 
-                        label="Password" 
-                        variant="standard" 
-                        type="password"
-                        autoComplete="current-password"
-                    />
-                </div>
-                <div>
-                    <Button type="submit" sx={{mt:3}}>Sign In</Button>
-                </div>
+                        />
+                    </div>
+                    <div>
+                        <TextField 
+                            id="password"
+                            name="password" 
+                            label="Password" 
+                            variant="standard" 
+                            type="password"
+                            autoComplete="current-password"
+                        />
+                    </div>
+                    <div>
+                        <Button type="submit" sx={{mt:3}}>Sign In</Button>
+                    </div>
+                </Box>
             </Box>
         </Box>
         )
