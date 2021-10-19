@@ -1,12 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Box, TextField, Button, Divider } from '@mui/material';
 import logo from '../../logo.png'
 import { GoogleLogin } from 'react-google-login';
 import { AuthContext } from 'contexts/AuthContext';
+import { RouteComponentProps } from 'react-router-dom';
 
 
-class Login extends React.Component {
-    constructor(props: object) {
+class Login extends React.Component<RouteComponentProps<{}>, {}> {
+
+    static contextType = AuthContext
+
+    constructor(props: RouteComponentProps<{}>) {
         super(props);
         this.state = {
             email: undefined,
@@ -32,10 +36,16 @@ class Login extends React.Component {
         if(response.error) {
             alert(response.type);
         } else {
-            
+            let googleUser = response.profileObj;
             // TODO 컨텍스트에 있는 User 정보를 업데이트 후 다시 route 에 태워 Home 으로 유도
+            let user = this.context;
+            user.userId = googleUser.googldId;
+            user.userName = googleUser.name;
+            user.email = googleUser.email;
+            user.imageUrl = googleUser.imageUrl;
+            user.authenticated = true;
 
-            console.log(response);
+            this.props.history.push("/");
         }
     }
 

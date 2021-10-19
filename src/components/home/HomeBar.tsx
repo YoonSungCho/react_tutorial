@@ -1,15 +1,17 @@
 import React from 'react'
-import AppBar from '@mui/material/AppBar'
-import Box from '@mui/material/Box'
-import Toolbar from '@mui/material/Toolbar'
-import { Avatar } from '@mui/material'
+import { AppBar, Box, Toolbar, Avatar, Typography } from '@mui/material'
+import { useContext } from 'react';
+import { AuthContext } from 'contexts/AuthContext'
 
 export default function HomeBar(props: any) {
+  let user = useContext(AuthContext);
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-        <Toolbar>
-          <Avatar src={props.imageUrl} />
+        <Toolbar>                   
+          <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>Feel To Gram</Typography>
+          <Typography sx={{ mr: 3 }}>Hello, {user.userName}</Typography>          
+          <Avatar src={user.imageUrl} />
         </Toolbar>
       </AppBar>
     </Box>
