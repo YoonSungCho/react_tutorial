@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, TextField, Button, Divider } from '@mui/material';
 import logo from '../../logo.png'
-import { GoogleLogin, GoogleLogout } from 'react-google-login';
-import HomeAppBar from 'components/home/homeAppBar';
+import { GoogleLogin } from 'react-google-login';
+import { AuthContext } from 'contexts/AuthContext';
+
 
 class Login extends React.Component {
     constructor(props: object) {
@@ -31,6 +32,9 @@ class Login extends React.Component {
         if(response.error) {
             alert(response.type);
         } else {
+            
+            // TODO 컨텍스트에 있는 User 정보를 업데이트 후 다시 route 에 태워 Home 으로 유도
+
             console.log(response);
         }
     }
