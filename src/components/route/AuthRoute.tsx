@@ -1,15 +1,21 @@
-import React, { useContext, ReactChild, ReactChildren } from 'react'
-import { AuthContext } from 'contexts/AuthContext'
-import { Route, Redirect } from 'react-router-dom'
+import { AuthContext } from 'contexts/AuthContext';
+import { Route, Redirect } from 'react-router-dom';
 
-type prop = {
-  children: ReactChild | ReactChildren
-  path: string
-}
+/**
+ * AuthRoute
+ * Route 상속받고 render 전 로그인 여부를 검사한 후 route 동작 진행
+ */
+export default class AuthRoute extends Route {
+  static contextType = AuthContext;
 
-export default function AuthRoute({ children, ...rest }: prop) {
-  const user = useContext(AuthContext)
-  return (
-    <Route {...rest} render={() => (user.authenticated ? children : <Redirect to="/login" />)} />
-  )
+  render() {
+    let user = this.context;
+    return user.authenticated ? (
+      super.render()
+    ) : this.props.path === '/login' ? (
+      super.render()
+    ) : (
+      <Redirect to="/login" />
+    );
+  }
 }

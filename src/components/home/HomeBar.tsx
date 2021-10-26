@@ -3,6 +3,11 @@ import { AppBar, Box, Toolbar, Avatar, Typography } from '@mui/material'
 import { useContext } from 'react';
 import { AuthContext } from 'contexts/AuthContext'
 
+/**
+ * 
+ * @param props 
+ * @returns 
+ */
 export default function HomeBar(props: any) {
   let user = useContext(AuthContext);
   return (
