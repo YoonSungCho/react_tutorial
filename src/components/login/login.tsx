@@ -1,11 +1,23 @@
 import React from 'react';
-import { Box, TextField, Button, Divider } from '@mui/material';
-import logo from '../../logo.png';
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  FormControlLabel,
+  Checkbox,
+  Grid,
+  Link,
+} from '@mui/material';
 import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
 import { AuthContext } from 'contexts/AuthContext';
 import { RouteComponentProps } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GoogleIcon from '@mui/icons-material/Google';
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+</style>;
 
 /**
  * @class Login
@@ -74,60 +86,101 @@ class Login<P extends RouteComponentProps> extends React.Component<P> {
 
   render() {
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-        <h3>Welcome</h3>
-        <img src={logo} className="App-logo" alt="logo" />
+      <Box
+        sx={{
+          height: '95vh',
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}>
         <Box
           sx={{
-            mt: 5,
+            p: 5,
             display: 'flex',
             alignItems: 'center',
-            width: 'fit-content',
+            width: '20vw',
+            flexDirection: 'column',
           }}>
-          <Box component="form" onSubmit={this.handleLogin}>
-            <div>
-              <GoogleLogin
-                clientId="812808506191-8engeelglq514fno67eltm73min06b4a.apps.googleusercontent.com"
-                buttonText="Login With Google"
-                onSuccess={this.googleResponse}
-                onFailure={this.googleResponseError}
-                cookiePolicy="single_host_origin"
-                redirectUri="/home"
-              />
-            </div>
-            <Divider sx={{ mt: 3, mb: 1 }} flexItem>
-              or
-            </Divider>
-            <div>
-              <TextField
-                id="email"
-                name="email"
-                label="Email"
-                variant="standard"
-                autoComplete="email"
-                required
-                autoFocus
-              />
-            </div>
-            <div>
-              <TextField
-                id="password"
-                name="password"
-                label="Password"
-                variant="standard"
-                type="password"
-                autoComplete="current-password"
-              />
-            </div>
-            <div>
-              <Button type="submit" sx={{ mt: 3 }}>
-                Sign In
+          <Typography
+            component="h1"
+            variant="h2"
+            sx={{ fontFamily: "'Architects Daughter', cursive;" }}>
+            Welcome Feel To Gram
+          </Typography>
+        </Box>
+        <Box
+          component="form"
+          onSubmit={this.handleLogin}
+          sx={{
+            mt: 2,
+            p: 5,
+            display: 'flex',
+            alignItems: 'center',
+            width: '20vw',
+            flexDirection: 'column',
+          }}>
+          <TextField
+            id="email"
+            name="email"
+            label="Email"
+            variant="standard"
+            autoComplete="email"
+            fullWidth
+            required
+            autoFocus
+          />
+          <TextField
+            id="password"
+            name="password"
+            label="Password"
+            variant="standard"
+            type="password"
+            autoComplete="current-password"
+            fullWidth
+          />
+          <Grid container>
+            <FormControlLabel
+              control={<Checkbox value="remember" color="info" />}
+              label="Remember me"
+              sx={{ color: 'gray', mt: 2 }}
+            />
+          </Grid>
+
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+            Sign In
+          </Button>
+          <GoogleLogin
+            clientId="812808506191-8engeelglq514fno67eltm73min06b4a.apps.googleusercontent.com"
+            buttonText="Login With Google"
+            onSuccess={this.googleResponse}
+            onFailure={this.googleResponseError}
+            cookiePolicy="single_host_origin"
+            redirectUri="/home"
+            render={props => (
+              <Button
+                onClick={props.onClick}
+                startIcon={<GoogleIcon />}
+                type="button"
+                fullWidth
+                variant="contained">
+                Google
               </Button>
-              <Button type="button" sx={{ mt: 3 }} onClick={this.handleSignUp}>
-                Sign Up
-              </Button>
-            </div>
-          </Box>
+            )}
+          />
+
+          <Grid container sx={{ m: 2 }}>
+            <Grid item xs sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <Link href="#" variant="body2">
+                Forgot password?
+              </Link>
+            </Grid>
+            <Grid item>
+              <Link href="/signup" variant="body2">
+                {"Don't have an account? Sign Up"}
+              </Link>
+            </Grid>
+          </Grid>
         </Box>
         <ToastContainer />
       </Box>
