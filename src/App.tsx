@@ -11,7 +11,6 @@ function App() {
       <ErrorBoundary>
         <Router>
           <Suspense fallback={<div>Loading...</div>}>
-            {/* 현재 URL과 매칭되는 <route> 찾아 component 실행 */}
             <Switch>
               {routes.map((route, i) => {
                 return (

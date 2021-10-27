@@ -1,53 +1,76 @@
 import React from 'react';
 import { Box, TextField, Button, Divider } from '@mui/material';
 import logo from '../../logo.png';
-import { GoogleLogin } from 'react-google-login';
+import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
 import { AuthContext } from 'contexts/AuthContext';
 import { RouteComponentProps } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-class Login extends React.Component<RouteComponentProps> {
+/**
+ * @class Login
+ * 로그인 관련 로직 수행
+ */
+class Login<P extends RouteComponentProps> extends React.Component<P> {
   static contextType = AuthContext;
 
-  constructor(props: RouteComponentProps) {
-    super(props);
-    this.state = {
-      email: undefined,
-      password: undefined,
+  /**
+   * 로그인 수행
+   * @param e 폼 이벤트 객체
+   */
+  handleLogin: (e: React.FormEvent<HTMLFormElement>) => void = e => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    data.get('');
+  };
+
+  /**
+   * 회원 가입 수행
+   * @param e 버튼 클릭 이벤트 객체
+   */
+  handleSignUp: (e: React.MouseEvent<HTMLButtonElement>) => void = e => {
+    e.preventDefault();
+    // 회원 가입 페이지 이동
+    this.props.history.push('/signup');
+  };
+
+  /**
+   * 구글 로그인 콜백
+   * @param response GoogleLoginResponse
+   */
+  googleResponse: (response: GoogleLoginResponse | GoogleLoginResponseOffline) => void =
+    response => {
+      response = response as GoogleLoginResponse;
+
+      if (response.isSignedIn()) {
+        let googleUser = response.getBasicProfile();
+
+        let user = this.context;
+        user.userId = googleUser.getId();
+        user.userName = googleUser.getName();
+        user.email = googleUser.getEmail();
+        user.imageUrl = googleUser.getImageUrl();
+        user.authenticated = response.isSignedIn();
+
+        this.props.history.push('/');
+      }
     };
 
-    this.handleLogin = this.handleLogin.bind(this);
-    this.googleResponse = this.googleResponse.bind(this);
-  }
-
-  handleLogin(e: any): void {
-    e.preventDefault();
-    const data: any = new FormData(e.currentTarget);
-    this.setState(
-      {
-        email: data.get('email'),
-        password: data.get('password'),
-      },
-      () => alert(JSON.stringify(this.state)),
-    );
-  }
-
-  googleResponse(response: any) {
-    if (response.error) {
-      alert(response.type);
-    } else {
-      let googleUser = response.profileObj;
-
-      let user = this.context;
-      user.userId = googleUser.googldId;
-      user.userName = googleUser.name;
-      user.email = googleUser.email;
-      user.imageUrl = googleUser.imageUrl;
-      user.authenticated = true;
-      // Home 으로 다시 보냄
-
-      this.props.history.push('/');
-    }
-  }
+  /**
+   * 구글 로그인 에러 처리
+   * @param response
+   */
+  googleResponseError: (response: any) => void = response => {
+    toast.error(response.error, {
+      position: 'top-center',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
 
   render() {
     return (
@@ -67,7 +90,7 @@ class Login extends React.Component<RouteComponentProps> {
                 clientId="812808506191-8engeelglq514fno67eltm73min06b4a.apps.googleusercontent.com"
                 buttonText="Login With Google"
                 onSuccess={this.googleResponse}
-                onFailure={this.googleResponse}
+                onFailure={this.googleResponseError}
                 cookiePolicy="single_host_origin"
                 redirectUri="/home"
               />
@@ -100,9 +123,13 @@ class Login extends React.Component<RouteComponentProps> {
               <Button type="submit" sx={{ mt: 3 }}>
                 Sign In
               </Button>
+              <Button type="button" sx={{ mt: 3 }} onClick={this.handleSignUp}>
+                Sign Up
+              </Button>
             </div>
           </Box>
         </Box>
+        <ToastContainer />
       </Box>
     );
   }
