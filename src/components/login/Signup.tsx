@@ -41,7 +41,15 @@ export default function SignUp() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          height: '95vh',
+          // border: '1px dashed gray;',
+        }}>
         <CssBaseline />
         <Box
           sx={{
@@ -49,9 +57,14 @@ export default function SignUp() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          }}>
+          <Typography
+            component="h1"
+            variant="h1"
+            sx={{ fontFamily: "'Nanum Brush Script', cursive" }}>
+            영 필~!
+          </Typography>
+          <Avatar sx={{ m: 1, mt: 8, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
@@ -63,6 +76,7 @@ export default function SignUp() {
                 <TextField
                   autoComplete="given-name"
                   name="firstName"
+                  variant="standard"
                   required
                   fullWidth
                   id="firstName"
@@ -77,6 +91,7 @@ export default function SignUp() {
                   id="lastName"
                   label="Last Name"
                   name="lastName"
+                  variant="standard"
                   autoComplete="family-name"
                 />
               </Grid>
@@ -84,6 +99,7 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
+                  variant="standard"
                   id="email"
                   label="Email Address"
                   name="email"
@@ -94,6 +110,7 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
+                  variant="standard"
                   name="password"
                   label="Password"
                   type="password"
@@ -101,31 +118,20 @@ export default function SignUp() {
                   autoComplete="new-password"
                 />
               </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid>
             </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 8, mb: 2 }}>
               Sign Up
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/login" variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>
             </Grid>
           </Box>
+          <Copyright sx={{ mt: 5 }} />
         </Box>
-        <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
   );

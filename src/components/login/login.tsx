@@ -15,9 +15,6 @@ import { RouteComponentProps } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleIcon from '@mui/icons-material/Google';
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
-</style>;
 
 /**
  * @class Login
@@ -25,6 +22,8 @@ import GoogleIcon from '@mui/icons-material/Google';
  */
 class Login<P extends RouteComponentProps> extends React.Component<P> {
   static contextType = AuthContext;
+  private readonly googleClientId =
+    '812808506191-8engeelglq514fno67eltm73min06b4a.apps.googleusercontent.com';
 
   /**
    * 로그인 수행
@@ -104,9 +103,9 @@ class Login<P extends RouteComponentProps> extends React.Component<P> {
           }}>
           <Typography
             component="h1"
-            variant="h2"
-            sx={{ fontFamily: "'Architects Daughter', cursive;" }}>
-            Welcome Feel To Gram
+            variant="h1"
+            sx={{ fontFamily: "'Nanum Brush Script', cursive" }}>
+            영 필~!
           </Typography>
         </Box>
         <Box
@@ -151,7 +150,7 @@ class Login<P extends RouteComponentProps> extends React.Component<P> {
             Sign In
           </Button>
           <GoogleLogin
-            clientId="812808506191-8engeelglq514fno67eltm73min06b4a.apps.googleusercontent.com"
+            clientId={this.googleClientId}
             buttonText="Login With Google"
             onSuccess={this.googleResponse}
             onFailure={this.googleResponseError}
