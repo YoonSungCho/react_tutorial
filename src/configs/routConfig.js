@@ -1,6 +1,6 @@
 import Home from 'components/home/Home';
 import Login from 'components/login/Login';
-import Signup from 'components/login/Signup';
+import SignUp from 'components/login/SignUp';
 
 /**
  * 라우팅 페이지 관리
@@ -19,6 +19,6 @@ export const routes = [
   {
     path: '/signup',
     exact: true,
-    component: Signup,
+    component: SignUp,
   },
 ];
