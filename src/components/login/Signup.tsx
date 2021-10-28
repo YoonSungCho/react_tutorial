@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -12,6 +10,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import '../axios/axios.config';
 
 function Copyright(props: any) {
   return (
@@ -29,14 +30,46 @@ function Copyright(props: any) {
 const theme = createTheme();
 
 export default function SignUp() {
+  const [errorText, setErrorText] = React.useState({});
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    let username = `${data.get('lastName')} ${data.get('firstName')}`;
+
+    axios
+      .post(
+        '/auth/local/register',
+        {
+          username: username,
+          email: data.get('email'),
+          password: data.get('password'),
+        },
+        {},
+      )
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(error => {
+        if (error.response) {
+          toast.error(error.response.data.message[0].messages[0].message, {
+            position: 'top-center',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          console.error(error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error('Error', error.message);
+        }
+      });
   };
 
   return (
@@ -132,6 +165,7 @@ export default function SignUp() {
           </Box>
           <Copyright sx={{ mt: 5 }} />
         </Box>
+        <ToastContainer />
       </Container>
     </ThemeProvider>
   );
