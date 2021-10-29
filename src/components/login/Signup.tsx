@@ -13,6 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import '../axios/axios.config';
+import FormValidate, { FormValidation } from './FormUtil';
 
 function Copyright(props: any) {
   return (
@@ -30,11 +31,60 @@ function Copyright(props: any) {
 const theme = createTheme();
 
 export default function SignUp() {
-  const [errorText, setErrorText] = React.useState({});
+  const initialFormValidateDate = {
+    email: { value: '' },
+    password: { value: '' },
+    firstName: { value: '' },
+    lastName: { value: '' },
+    confirmpassword: { value: '' },
+  };
+  const [formData, setFormData] = React.useState<FormValidation>(initialFormValidateDate);
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const { name, value, required } = event.target;
+    const obj = { [name]: { value, required } };
+
+    FormValidate(obj);
+
+    setFormData({
+      ...formData,
+      ...obj,
+    });
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const obj: { [a: string]: any } = {};
+    Array.from(event.currentTarget.elements).forEach(input => {
+      if (input.tagName === 'INPUT') {
+        let el = input as HTMLInputElement;
+        const { name, value, required } = el;
+        obj[name] = { value, required };
+      }
+    });
+
+    debugger;
+
+    if (FormValidate(obj)) {
+      console.log(obj);
+    } else {
+      console.error(obj);
+      event.currentTarget.reportValidity();
+    }
+
+    return;
+
     const data = new FormData(event.currentTarget);
     let username = `${data.get('lastName')} ${data.get('firstName')}`;
+    // const obj = {
+    //   email: { value: data.get('email', data) },
+    //   password: { value: '' },
+    //   firstName: { value: '' },
+    //   lastName: { value: '' },
+    //   confirmpassword: { value: '' },
+    // };
+
+    return;
 
     axios
       .post(
@@ -112,43 +162,71 @@ export default function SignUp() {
                   variant="standard"
                   required
                   fullWidth
+                  error={formData.firstName.error}
+                  helperText={formData.firstName.helperText}
                   id="firstName"
                   label="First Name"
                   autoFocus
+                  onBlur={handleBlur}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   required
                   fullWidth
+                  error={formData.lastName.error}
+                  helperText={formData.lastName.helperText}
                   id="lastName"
                   label="Last Name"
                   name="lastName"
                   variant="standard"
                   autoComplete="family-name"
+                  onBlur={handleBlur}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
+                  error={formData.email.error}
+                  helperText={formData.email.helperText}
                   variant="standard"
                   id="email"
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  onBlur={handleBlur}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
+                  error={formData.password.error}
+                  helperText={formData.password.helperText}
                   variant="standard"
                   name="password"
                   label="Password"
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                  onBlur={handleBlur}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  disabled
+                  error={formData.confirmpassword.error}
+                  helperText={formData.confirmpassword.helperText}
+                  variant="standard"
+                  name="confirmpassword"
+                  label="Confirm Password"
+                  type="password"
+                  id="confirmpassword"
+                  autoComplete="new-password"
+                  onBlur={handleBlur}
                 />
               </Grid>
             </Grid>
