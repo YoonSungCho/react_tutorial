@@ -24,6 +24,11 @@ export default class AuthRoute<T extends { path: string | string[] }> extends Ro
 
   render() {
     let user = this.context;
+    var userData = window.localStorage.getItem('userContext');
+    if (userData) {
+      user = JSON.parse(userData);
+    }
+
     let path = (this.props as T).path;
     // string [] 로 통일
     let pathArray = Array.isArray(path) ? path : [path];

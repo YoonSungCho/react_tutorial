@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -30,7 +30,12 @@ function Copyright(props: any) {
 
 const theme = createTheme();
 
+/**
+ * 회원 가입 컴포넌트
+ * @returns
+ */
 export default function SignUp() {
+  // 회원 form 정보 validate 데이터 초기 데이타
   const initialFormValidateDate = {
     email: { value: '' },
     password: { value: '' },
@@ -38,23 +43,22 @@ export default function SignUp() {
     lastName: { value: '' },
     confirmpassword: { value: '' },
   };
+
+  // form validate를 위한 state
   const [formData, setFormData] = React.useState<FormValidation>(initialFormValidateDate);
-  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    const { name, value, required } = event.target;
-    const obj = { [name]: { value, required } };
+  // Loading 버튼 state
+  const [loading, setLoading] = React.useState(false);
 
-    FormValidate(obj);
-
-    setFormData({
-      ...formData,
-      ...obj,
-    });
-  };
-
+  /**
+   * form submit 전 validation 검증 및 회원 가입 서비스 호출
+   * @param {React.FormEvent<HTMLFormElement>} event
+   * @returns {void}
+   */
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    // validation 에 전달할 데이터 객체
     const obj: { [a: string]: any } = {};
+    // form elements 중 input 필드만 filter 한후 validation 데이터 생성
     Array.from(event.currentTarget.elements).forEach(input => {
       if (input.tagName === 'INPUT') {
         let el = input as HTMLInputElement;
@@ -63,63 +67,59 @@ export default function SignUp() {
       }
     });
 
-    debugger;
-
-    if (FormValidate(obj)) {
-      console.log(obj);
-    } else {
-      console.error(obj);
+    // validation 진행
+    if (!FormValidate(obj)) {
+      // 문제 필드 포커스
       event.currentTarget.reportValidity();
-    }
-
-    return;
-
-    const data = new FormData(event.currentTarget);
-    let username = `${data.get('lastName')} ${data.get('firstName')}`;
-    // const obj = {
-    //   email: { value: data.get('email', data) },
-    //   password: { value: '' },
-    //   firstName: { value: '' },
-    //   lastName: { value: '' },
-    //   confirmpassword: { value: '' },
-    // };
-
-    return;
-
-    axios
-      .post(
-        '/auth/local/register',
-        {
-          username: username,
-          email: data.get('email'),
-          password: data.get('password'),
-        },
-        {},
-      )
-      .then(response => {
-        console.log(response.data);
-      })
-      .catch(error => {
-        if (error.response) {
-          toast.error(error.response.data.message[0].messages[0].message, {
-            position: 'top-center',
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-        } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
-          console.error(error.request);
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.error('Error', error.message);
-        }
+      // validaiton 결과 state 저장
+      setFormData({
+        ...obj,
       });
+
+      return;
+    } else {
+      // validaiton 결과 state 저장
+      setFormData({
+        ...obj,
+      });
+
+      setLoading(true);
+      // 회원 등록 서비스 호출
+      axios
+        .post(
+          '/auth/local/register',
+          {
+            username: `${obj.lastName.value} ${obj.firstName.value}`,
+            email: obj.email.value,
+            password: obj.password.value,
+          },
+          {},
+        )
+        .then(response => {
+          console.log(response.data);
+          setLoading(false);
+        })
+        .catch(error => {
+          if (error.response) {
+            setLoading(false);
+            toast.error(error.response.data.message[0].messages[0].message, {
+              position: 'top-center',
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            });
+          } else if (error.request) {
+            setLoading(false);
+            console.error(error.request);
+          } else {
+            setLoading(false);
+            console.error('Error', error.message);
+          }
+        });
+    }
   };
 
   return (
@@ -167,7 +167,6 @@ export default function SignUp() {
                   id="firstName"
                   label="First Name"
                   autoFocus
-                  onBlur={handleBlur}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -181,7 +180,6 @@ export default function SignUp() {
                   name="lastName"
                   variant="standard"
                   autoComplete="family-name"
-                  onBlur={handleBlur}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -195,7 +193,6 @@ export default function SignUp() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
-                  onBlur={handleBlur}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -210,14 +207,19 @@ export default function SignUp() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
-                  onBlur={handleBlur}
+                  onChange={e => {
+                    formData['password'].value = e.target.value;
+                    setFormData({
+                      ...formData,
+                    });
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
-                  disabled
+                  disabled={formData.password.value.length > 0 ? false : true}
                   error={formData.confirmpassword.error}
                   helperText={formData.confirmpassword.helperText}
                   variant="standard"
@@ -226,13 +228,17 @@ export default function SignUp() {
                   type="password"
                   id="confirmpassword"
                   autoComplete="new-password"
-                  onBlur={handleBlur}
                 />
               </Grid>
             </Grid>
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 8, mb: 2 }}>
+            <LoadingButton
+              loading={loading}
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 8, mb: 2 }}>
               Sign Up
-            </Button>
+            </LoadingButton>
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href="/login" variant="body2">

@@ -9,30 +9,124 @@ import {
   Grid,
   Link,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
 import { AuthContext } from 'contexts/AuthContext';
 import { RouteComponentProps } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleIcon from '@mui/icons-material/Google';
+import FormValidate, { FormValidation } from './FormUtil';
+import axios from 'axios';
 
 /**
  * @class Login
  * 로그인 관련 로직 수행
  */
-class Login<P extends RouteComponentProps> extends React.Component<P> {
+class Login extends React.Component<RouteComponentProps, FormValidation> {
   static contextType = AuthContext;
   private readonly googleClientId =
     '812808506191-8engeelglq514fno67eltm73min06b4a.apps.googleusercontent.com';
 
+  constructor(props: RouteComponentProps) {
+    super(props);
+
+    // form validastion 용 초기 데이터
+    this.state = {
+      email: { value: '' },
+      password: { value: '' },
+      // loading sate 변수를 만드려고 form validation 이 아닌 데이터 우겨넣음...
+      login: { value: '' },
+    };
+  }
   /**
    * 로그인 수행
    * @param e 폼 이벤트 객체
    */
   handleLogin: (e: React.FormEvent<HTMLFormElement>) => void = e => {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    data.get('');
+    // validation 에 전달할 데이터 객체
+    const obj: { [a: string]: any } = {};
+    // form elements 중 input 필드만 filter 한후 validation 데이터 생성
+    Array.from(e.currentTarget.elements).forEach(input => {
+      if (input.tagName === 'INPUT') {
+        let el = input as HTMLInputElement;
+        const { name, value, required } = el;
+        obj[name] = { value, required };
+      }
+    });
+
+    // validation 진행
+    if (!FormValidate(obj)) {
+      // 문제 필드 포커스
+      e.currentTarget.reportValidity();
+      // validaiton 결과 state 저장
+      this.setState(state => {
+        return {
+          ...state,
+          ...obj,
+        };
+      });
+
+      return;
+    } else {
+      this.setState(state => {
+        return {
+          login: { value: 'loading' },
+          ...state,
+        };
+      });
+
+      // 로그인 수행
+      axios
+        .post('/auth/local', {
+          identifier: obj.email.value,
+          password: obj.password.value,
+        })
+        .then(response => {
+          // state 값 갱신
+          this.setState(state => {
+            return {
+              login: { value: '' },
+              ...state,
+            };
+          });
+          // user context 데이터 저장
+          let { username, id, email, confirmed } = response.data.user;
+          let user = this.context;
+          user.userId = id;
+          user.userName = username;
+          user.email = email;
+          user.imageUrl = '';
+          user.authenticated = confirmed;
+          window.localStorage.setItem('userContext', JSON.stringify(user));
+          // 홈으로 이동
+          this.props.history.push('/', { from: '/login' });
+        })
+        .catch(error => {
+          this.setState(state => {
+            return {
+              login: { value: '' },
+              ...state,
+            };
+          });
+          if (error.response) {
+            toast.error(error.response.data.message[0].messages[0].message, {
+              position: 'top-center',
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            });
+          } else if (error.request) {
+            console.error(error.request);
+          } else {
+            console.error('Error', error.message);
+          }
+        });
+    }
   };
 
   /**
@@ -42,7 +136,28 @@ class Login<P extends RouteComponentProps> extends React.Component<P> {
   handleSignUp: (e: React.MouseEvent<HTMLButtonElement>) => void = e => {
     e.preventDefault();
     // 회원 가입 페이지 이동
-    this.props.history.push('/signup');
+    //this.props.history.push('/signup');
+  };
+
+  /**
+   * 필드 값 변경 이벤트
+   * @param e change 이벤트 객체
+   */
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void = e => {
+    e.preventDefault();
+
+    const { name, value, required } = e.target;
+    const obj = { [name]: { value, required } };
+
+    // 에러인 경우에만 form validation 수행
+    if (this.state[name].error === true) {
+      FormValidate(obj);
+
+      this.setState({
+        ...this.state,
+        ...obj,
+      });
+    }
   };
 
   /**
@@ -110,6 +225,7 @@ class Login<P extends RouteComponentProps> extends React.Component<P> {
         </Box>
         <Box
           component="form"
+          noValidate
           onSubmit={this.handleLogin}
           sx={{
             mt: 2,
@@ -125,6 +241,9 @@ class Login<P extends RouteComponentProps> extends React.Component<P> {
             label="Email"
             variant="standard"
             autoComplete="email"
+            error={this.state.email.error}
+            helperText={this.state.email.helperText}
+            onChange={this.handleChange}
             fullWidth
             required
             autoFocus
@@ -136,7 +255,11 @@ class Login<P extends RouteComponentProps> extends React.Component<P> {
             variant="standard"
             type="password"
             autoComplete="current-password"
+            error={this.state.password.error}
+            helperText={this.state.password.helperText}
+            onChange={this.handleChange}
             fullWidth
+            required
           />
           <Grid container>
             <FormControlLabel
@@ -145,11 +268,16 @@ class Login<P extends RouteComponentProps> extends React.Component<P> {
               sx={{ color: 'gray', mt: 2 }}
             />
           </Grid>
-
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+          <LoadingButton
+            loading={this.state.login.value === 'loading' ? true : false}
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}>
             Sign In
-          </Button>
+          </LoadingButton>
           <GoogleLogin
+            disabled={this.state.login.value === 'loading' ? true : false}
             clientId={this.googleClientId}
             buttonText="Login With Google"
             onSuccess={this.googleResponse}
