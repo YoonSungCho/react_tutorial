@@ -14,19 +14,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import '../axios/axios.config';
 import FormValidate, { FormValidation } from './FormUtil';
-
-function Copyright(props: any) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import { RouteComponentProps } from 'react-router-dom';
 
 const theme = createTheme();
 
@@ -34,7 +22,7 @@ const theme = createTheme();
  * 회원 가입 컴포넌트
  * @returns
  */
-export default function SignUp() {
+export default function SignUp(props: RouteComponentProps) {
   // 회원 form 정보 validate 데이터 초기 데이타
   const initialFormValidateDate = {
     email: { value: '' },
@@ -71,14 +59,14 @@ export default function SignUp() {
     if (!FormValidate(obj)) {
       // 문제 필드 포커스
       event.currentTarget.reportValidity();
-      // validaiton 결과 state 저장
+      // validaiton 결과 state 저장하여 form field 상태 변경
       setFormData({
         ...obj,
       });
 
       return;
     } else {
-      // validaiton 결과 state 저장
+      // validaiton 결과 state 저장하여 form field 상태 변경
       setFormData({
         ...obj,
       });
@@ -86,21 +74,23 @@ export default function SignUp() {
       setLoading(true);
       // 회원 등록 서비스 호출
       axios
-        .post(
-          '/auth/local/register',
-          {
-            username: `${obj.lastName.value} ${obj.firstName.value}`,
-            email: obj.email.value,
-            password: obj.password.value,
-          },
-          {},
-        )
+        .post('/auth/local/register', {
+          username: `${obj.lastName.value} ${obj.firstName.value}`,
+          email: obj.email.value,
+          password: obj.password.value,
+        })
         .then(response => {
-          console.log(response.data);
           setLoading(false);
+          toast.success('Thanks for signing up', {
+            onClose: () => {
+              // 회원가입 성공한 경우 가입한 email 자동완성을 위해 location state 값으로 넘김
+              props.history.push('/login', { email: obj.email.value });
+            },
+          });
         })
         .catch(error => {
           if (error.response) {
+            console.log(error.response);
             setLoading(false);
             toast.error(error.response.data.message[0].messages[0].message, {
               position: 'top-center',
@@ -247,7 +237,6 @@ export default function SignUp() {
               </Grid>
             </Grid>
           </Box>
-          <Copyright sx={{ mt: 5 }} />
         </Box>
         <ToastContainer />
       </Container>

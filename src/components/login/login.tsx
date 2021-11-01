@@ -18,22 +18,31 @@ import 'react-toastify/dist/ReactToastify.css';
 import GoogleIcon from '@mui/icons-material/Google';
 import FormValidate, { FormValidation } from './FormUtil';
 import axios from 'axios';
+import { StaticContext } from 'react-router';
 
+type LocationState = {
+  from: string;
+  email?: string;
+};
 /**
  * @class Login
  * 로그인 관련 로직 수행
  */
-class Login extends React.Component<RouteComponentProps, FormValidation> {
+class Login extends React.Component<
+  RouteComponentProps<{}, StaticContext, LocationState>,
+  FormValidation
+> {
   static contextType = AuthContext;
   private readonly googleClientId =
     '812808506191-8engeelglq514fno67eltm73min06b4a.apps.googleusercontent.com';
 
-  constructor(props: RouteComponentProps) {
+  constructor(props: RouteComponentProps<{}, StaticContext, LocationState>) {
     super(props);
 
     // form validastion 용 초기 데이터
+    // 만약 회원가입에서 성공해서 로그인 페이지 로 넘어온 경우 email 채워줌
     this.state = {
-      email: { value: '' },
+      email: { value: props.location.state?.email || '' },
       password: { value: '' },
       // loading sate 변수를 만드려고 form validation 이 아닌 데이터 우겨넣음...
       login: { value: '' },
@@ -72,11 +81,10 @@ class Login extends React.Component<RouteComponentProps, FormValidation> {
     } else {
       this.setState(state => {
         return {
-          login: { value: 'loading' },
           ...state,
+          login: { value: 'loading' },
         };
       });
-
       // 로그인 수행
       axios
         .post('/auth/local', {
@@ -87,8 +95,8 @@ class Login extends React.Component<RouteComponentProps, FormValidation> {
           // state 값 갱신
           this.setState(state => {
             return {
-              login: { value: '' },
               ...state,
+              login: { value: '' },
             };
           });
           // user context 데이터 저장
@@ -99,15 +107,14 @@ class Login extends React.Component<RouteComponentProps, FormValidation> {
           user.email = email;
           user.imageUrl = '';
           user.authenticated = confirmed;
-          window.localStorage.setItem('userContext', JSON.stringify(user));
           // 홈으로 이동
           this.props.history.push('/', { from: '/login' });
         })
         .catch(error => {
           this.setState(state => {
             return {
-              login: { value: '' },
               ...state,
+              login: { value: '' },
             };
           });
           if (error.response) {
@@ -157,6 +164,15 @@ class Login extends React.Component<RouteComponentProps, FormValidation> {
         ...this.state,
         ...obj,
       });
+    } else {
+      if (name === 'email') {
+        this.setState(state => {
+          state.email.value = value;
+          return {
+            ...state,
+          };
+        });
+      }
     }
   };
 
@@ -241,6 +257,7 @@ class Login extends React.Component<RouteComponentProps, FormValidation> {
             label="Email"
             variant="standard"
             autoComplete="email"
+            value={this.state.email.value}
             error={this.state.email.error}
             helperText={this.state.email.helperText}
             onChange={this.handleChange}

@@ -24,10 +24,12 @@ export default class AuthRoute<T extends { path: string | string[] }> extends Ro
 
   render() {
     let user = this.context;
-    var userData = window.localStorage.getItem('userContext');
-    if (userData) {
-      user = JSON.parse(userData);
-    }
+
+    /**
+     * TODO 브라우져 refresh할때 token 유지 불가하여 매번 로그인 해야함. (local or session storage 는 공격에 취약함)
+     * httponly cookie 정책을 권장함 (https://youtu.be/894seNhONF8)
+     * 개발자 도구에서 확인은 가능하지만 console 에서 document.cookie 로 접근 불가능
+     */
 
     let path = (this.props as T).path;
     // string [] 로 통일
