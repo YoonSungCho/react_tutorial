@@ -19,6 +19,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import FormValidate, { FormValidation } from './FormUtil';
 import axios from 'axios';
 import { StaticContext } from 'react-router';
+import { SignIn } from '../api/auth.api';
 
 type LocationState = {
   from: string;
@@ -86,19 +87,11 @@ class Login extends React.Component<
         };
       });
       // 로그인 수행
-      axios
-        .post('/auth/local', {
-          identifier: obj.email.value,
-          password: obj.password.value,
-        })
+      SignIn({
+        identifier: obj.email.value,
+        password: obj.password.value,
+      })
         .then(response => {
-          // state 값 갱신
-          this.setState(state => {
-            return {
-              ...state,
-              login: { value: '' },
-            };
-          });
           // user context 데이터 저장
           let { username, id, email, confirmed } = response.data.user;
           let user = this.context;
@@ -107,16 +100,13 @@ class Login extends React.Component<
           user.email = email;
           user.imageUrl = '';
           user.authenticated = confirmed;
+          user.jwt = response.data.jwt;
+          // jwt 인증 토큰 저장
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.jwt;
           // 홈으로 이동
           this.props.history.push('/', { from: '/login' });
         })
         .catch(error => {
-          this.setState(state => {
-            return {
-              ...state,
-              login: { value: '' },
-            };
-          });
           if (error.response) {
             toast.error(error.response.data.message[0].messages[0].message, {
               position: 'top-center',
@@ -132,6 +122,14 @@ class Login extends React.Component<
           } else {
             console.error('Error', error.message);
           }
+        })
+        .finally(() => {
+          this.setState(state => {
+            return {
+              ...state,
+              login: { value: '' },
+            };
+          });
         });
     }
   };

@@ -18,33 +18,6 @@ export type FormValidation = {
 };
 
 /**
- * form 필드 검증이 react 나 mui 에서 제공하는거 같지 않아
- * 현재 앱에서 공통으로 form 검사를 위해 만듬
- * form field 검사
- * @param {FormValidation<T>} data
- */
-export default function FormValidate(data: FormValidation): boolean {
-  let allPass = [];
-  for (let key in data) {
-    switch (key) {
-      case 'email':
-        allPass.push(validEmail(data[key]));
-        break;
-      case 'password':
-        allPass.push(validPassword(data[key]));
-        break;
-      case 'confirmpassword':
-        allPass.push(confirmPassword(data[key], data['password']));
-        break;
-      default:
-        allPass.push(defaultField(data[key]));
-        break;
-    }
-  }
-  return allPass.every(x => x);
-}
-
-/**
  * email 검사
  * @param {FieldStatus} field
  */
@@ -115,7 +88,7 @@ const confirmPassword: (confirm: FieldStatus, password: FieldStatus) => boolean 
  * @param {FieldStatus} field
  */
 const defaultField: (field: FieldStatus) => boolean = field => {
-  if (field.required && field.value.length === 0) {
+  if (field.required && field.value.length) {
     field.error = true;
     field.helperText = 'Is required.';
   } else {
@@ -125,3 +98,30 @@ const defaultField: (field: FieldStatus) => boolean = field => {
 
   return !field.error;
 };
+
+/**
+ * form 필드 검증이 react 나 mui 에서 제공하는거 같지 않아
+ * 현재 앱에서 공통으로 form 검사를 위해 만듬
+ * form field 검사
+ * @param {FormValidation<T>} data
+ */
+export default function FormValidate(data: FormValidation): boolean {
+  let allPass = [];
+  for (let key in data) {
+    switch (key) {
+      case 'email':
+        allPass.push(validEmail(data[key]));
+        break;
+      case 'password':
+        allPass.push(validPassword(data[key]));
+        break;
+      case 'confirmpassword':
+        allPass.push(confirmPassword(data[key], data['password']));
+        break;
+      default:
+        allPass.push(defaultField(data[key]));
+        break;
+    }
+  }
+  return allPass.every(x => x);
+}

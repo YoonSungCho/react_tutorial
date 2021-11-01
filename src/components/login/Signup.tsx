@@ -80,7 +80,6 @@ export default function SignUp(props: RouteComponentProps) {
           password: obj.password.value,
         })
         .then(response => {
-          setLoading(false);
           toast.success('Thanks for signing up', {
             onClose: () => {
               // 회원가입 성공한 경우 가입한 email 자동완성을 위해 location state 값으로 넘김
@@ -90,8 +89,6 @@ export default function SignUp(props: RouteComponentProps) {
         })
         .catch(error => {
           if (error.response) {
-            console.log(error.response);
-            setLoading(false);
             toast.error(error.response.data.message[0].messages[0].message, {
               position: 'top-center',
               autoClose: 5000,
@@ -102,12 +99,13 @@ export default function SignUp(props: RouteComponentProps) {
               progress: undefined,
             });
           } else if (error.request) {
-            setLoading(false);
             console.error(error.request);
           } else {
-            setLoading(false);
             console.error('Error', error.message);
           }
+        })
+        .finally(() => {
+          setLoading(false);
         });
     }
   };
@@ -198,7 +196,7 @@ export default function SignUp(props: RouteComponentProps) {
                   id="password"
                   autoComplete="new-password"
                   onChange={e => {
-                    formData['password'].value = e.target.value;
+                    formData.password.value = e.target.value;
                     setFormData({
                       ...formData,
                     });
